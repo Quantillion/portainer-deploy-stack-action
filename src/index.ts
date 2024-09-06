@@ -43,7 +43,7 @@ import fs from 'fs';
 					core.info(
 						`Inserting image ${image} into the stack definition`
 					);
-					return stackDefinition.replace(
+					stackDefinition = stackDefinition.replace(
 						new RegExp(`${imageWithoutTag}(:.*)?\n`),
 						`${image}\n`
 					);
