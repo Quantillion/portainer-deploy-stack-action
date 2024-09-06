@@ -25,13 +25,32 @@ import fs from 'fs';
 			if (!filePath) {
 				throw new Error('Missing stack definition');
 			}
-			let file = fs.readFileSync(filePath, 'utf-8');
-			if (!file) {
+			let stackDefinition = fs.readFileSync(filePath, 'utf-8');
+			if (!stackDefinition) {
 				throw new Error(
 					`Could not find stack definition file ${filePath}`
 				);
 			}
-			await portainer.createStack(name, file);
+
+			const imagesInput = core.getInput('images');
+			if (imagesInput) {
+				const images = imagesInput.split('\n').map((i) => i.trim());
+				for (const image of images) {
+					const imageWithoutTag = image.substring(
+						0,
+						image.indexOf(':')
+					);
+					core.info(
+						`Inserting image ${image} into the stack definition`
+					);
+					return stackDefinition.replace(
+						new RegExp(`${imageWithoutTag}(:.*)?\n`),
+						`${image}\n`
+					);
+				}
+			}
+
+			await portainer.createStack(name, stackDefinition);
 		}
 	} catch (e) {
 		core.setFailed(`Action failed with error: ${e.message}`);

@@ -19,6 +19,9 @@ inputs:
     stack_definition:
         description: Location of the stack file (e.g. docker-compose.yml).
         required: false
+    images:
+        description: The tags of container images to insert into the stack definition, separated by newline
+        required: false
     delete:
         description: Set "true" to delete the stack
         required: false
