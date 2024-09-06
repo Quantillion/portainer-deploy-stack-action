@@ -1,11 +1,5 @@
-import core from '@actions/core';
-import axios, {
-	Axios,
-	AxiosError,
-	AxiosInstance,
-	HttpStatusCode,
-	InternalAxiosRequestConfig,
-} from 'axios';
+import * as core from '@actions/core';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 export class PortainerService {
 	private token = null;
