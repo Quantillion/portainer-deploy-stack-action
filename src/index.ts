@@ -1,5 +1,4 @@
-import core from '@actions/core';
-import axios from 'axios';
+import * as core from '@actions/core';
 import { PortainerService } from './PortainerService';
 import fs from 'fs';
 
