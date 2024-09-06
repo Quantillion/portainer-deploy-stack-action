@@ -1,6 +1,11 @@
 import * as core from '@actions/core';
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
+type Stack = {
+	Id: number;
+	Name: string;
+	Env: string | null;
+};
 export class PortainerService {
 	private token = null;
 	private client: AxiosInstance;
@@ -31,36 +36,11 @@ export class PortainerService {
 			core.info('Authentication succeeded');
 		} catch (e) {
 			core.info(`Authentication failed: ${JSON.stringify(e)}`);
+			throw e;
 		}
 	}
 
-	logout() {
-		this.token = null;
-	}
-
-	async createStack(name: string, stackFileContent: string) {
-		core.info(`Creating stack ${name}...`);
-		try {
-			const { data } = await this.client.post(
-				'stacks',
-				{ name, stackFileContent },
-				{
-					params: {
-						endpointId: this.endPointId,
-						method: 'string',
-						type: 2,
-					},
-				}
-			);
-			core.info(
-				`Successfully created stack ${data.name} with id ${data.id}`
-			);
-		} catch (e) {
-			core.info(`Stack creation failed: ${JSON.stringify(e)}`);
-		}
-	}
-
-	async getStacks() {
+	async getStacks(): Promise<Stack[]> {
 		const { data } = await this.client.get('/stacks', {
 			params: { endpointId: this.endPointId },
 		});
@@ -69,20 +49,64 @@ export class PortainerService {
 
 	async findStack(name: string) {
 		const stacks = await this.getStacks();
-		return stacks.find((s) => (s.name = name));
+		return stacks.find((s) => s.Name === name);
+	}
+
+	async crupdateStack(name: string, stackFileContent: string) {
+		const stack = await this.findStack(name);
+		if (!stack) {
+			core.info(`Creating stack ${name}...`);
+			try {
+				const { data } = await this.client.post(
+					'/stacks',
+					{ name, stackFileContent },
+					{
+						params: {
+							endpointId: this.endPointId,
+							method: 'string',
+							type: 2,
+						},
+					}
+				);
+				core.info(
+					`Successfully created stack ${data.Name} with id ${data.Id}`
+				);
+			} catch (e) {
+				core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+				throw e;
+			}
+		} else {
+			core.info(`Updating stack ${stack.Name}...`);
+			try {
+				const { data } = await this.client.put(
+					`/stacks/${stack.Id}`,
+					{ env: stack.Env, stackFileContent },
+					{
+						params: {
+							endpointId: this.endPointId,
+						},
+					}
+				);
+				core.info(`Successfully updated stack ${data.Name}`);
+			} catch (e) {
+				core.info(`Stack update failed: ${JSON.stringify(e)}`);
+				throw e;
+			}
+		}
 	}
 
 	async deleteStack(name: string) {
 		const stack = await this.findStack(name);
 		if (stack) {
-			core.info(`Creating stack ${name}...`);
+			core.info(`Deleting stack ${name}...`);
 			try {
-				await this.client.delete(`/stacks/${stack.id}`, {
+				await this.client.delete(`/stacks/${stack.Id}`, {
 					params: { endPointId: this.endPointId },
 				});
 				core.info(`Successfully deleted stack ${name}`);
 			} catch (e) {
 				core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+				throw e;
 			}
 		}
 	}

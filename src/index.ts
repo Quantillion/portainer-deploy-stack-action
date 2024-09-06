@@ -50,7 +50,7 @@ import fs from 'fs';
 				}
 			}
 
-			await portainer.createStack(name, stackDefinition);
+			await portainer.crupdateStack(name, stackDefinition);
 		}
 	} catch (e) {
 		core.setFailed(`Action failed with error: ${e.message}`);

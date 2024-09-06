@@ -69,7 +69,7 @@ const fs_1 = __importDefault(require("fs"));
                     stackDefinition = stackDefinition.replace(new RegExp(`${imageWithoutTag}(:.*)?\n`), `${image}\n`);
                 }
             }
-            yield portainer.createStack(name, stackDefinition);
+            yield portainer.crupdateStack(name, stackDefinition);
         }
     }
     catch (e) {

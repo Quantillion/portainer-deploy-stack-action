@@ -63,27 +63,7 @@ class PortainerService {
             }
             catch (e) {
                 core.info(`Authentication failed: ${JSON.stringify(e)}`);
-            }
-        });
-    }
-    logout() {
-        this.token = null;
-    }
-    createStack(name, stackFileContent) {
-        return __awaiter(this, void 0, void 0, function* () {
-            core.info(`Creating stack ${name}...`);
-            try {
-                const { data } = yield this.client.post('stacks', { name, stackFileContent }, {
-                    params: {
-                        endpointId: this.endPointId,
-                        method: 'string',
-                        type: 2,
-                    },
-                });
-                core.info(`Successfully created stack ${data.name} with id ${data.id}`);
-            }
-            catch (e) {
-                core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+                throw e;
             }
         });
     }
@@ -98,22 +78,60 @@ class PortainerService {
     findStack(name) {
         return __awaiter(this, void 0, void 0, function* () {
             const stacks = yield this.getStacks();
-            return stacks.find((s) => (s.name = name));
+            return stacks.find((s) => s.Name === name);
+        });
+    }
+    crupdateStack(name, stackFileContent) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const stack = yield this.findStack(name);
+            if (!stack) {
+                core.info(`Creating stack ${name}...`);
+                try {
+                    const { data } = yield this.client.post('/stacks', { name, stackFileContent }, {
+                        params: {
+                            endpointId: this.endPointId,
+                            method: 'string',
+                            type: 2,
+                        },
+                    });
+                    core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
+                }
+                catch (e) {
+                    core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+                    throw e;
+                }
+            }
+            else {
+                core.info(`Updating stack ${stack.Name}...`);
+                try {
+                    const { data } = yield this.client.put(`/stacks/${stack.Id}`, { env: stack.Env, stackFileContent }, {
+                        params: {
+                            endpointId: this.endPointId,
+                        },
+                    });
+                    core.info(`Successfully updated stack ${data.Name}`);
+                }
+                catch (e) {
+                    core.info(`Stack update failed: ${JSON.stringify(e)}`);
+                    throw e;
+                }
+            }
         });
     }
     deleteStack(name) {
         return __awaiter(this, void 0, void 0, function* () {
             const stack = yield this.findStack(name);
             if (stack) {
-                core.info(`Creating stack ${name}...`);
+                core.info(`Deleting stack ${name}...`);
                 try {
-                    yield this.client.delete(`/stacks/${stack.id}`, {
+                    yield this.client.delete(`/stacks/${stack.Id}`, {
                         params: { endPointId: this.endPointId },
                     });
                     core.info(`Successfully deleted stack ${name}`);
                 }
                 catch (e) {
                     core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+                    throw e;
                 }
             }
         });
