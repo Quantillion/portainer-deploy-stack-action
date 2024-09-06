@@ -56,11 +56,20 @@ const fs_1 = __importDefault(require("fs"));
             if (!filePath) {
                 throw new Error('Missing stack definition');
             }
-            let file = fs_1.default.readFileSync(filePath, 'utf-8');
-            if (!file) {
+            let stackDefinition = fs_1.default.readFileSync(filePath, 'utf-8');
+            if (!stackDefinition) {
                 throw new Error(`Could not find stack definition file ${filePath}`);
             }
-            yield portainer.createStack(name, file);
+            const imagesInput = core.getInput('images');
+            if (imagesInput) {
+                const images = imagesInput.split('\n').map((i) => i.trim());
+                for (const image of images) {
+                    const imageWithoutTag = image.substring(0, image.indexOf(':'));
+                    core.info(`Inserting image ${image} into the stack definition`);
+                    return stackDefinition.replace(new RegExp(`${imageWithoutTag}(:.*)?\n`), `${image}\n`);
+                }
+            }
+            yield portainer.createStack(name, stackDefinition);
         }
     }
     catch (e) {
