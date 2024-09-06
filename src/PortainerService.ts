@@ -23,13 +23,14 @@ export class PortainerService {
 	async authenticate(username: string, password: string) {
 		core.info('Authenticating with Portainer...');
 		try {
-			await this.client.post('/auth', {
+			const { data } = await this.client.post('/auth', {
 				username,
 				password,
 			});
+			this.token = data.jwt;
 			core.info('Authentication succeeded');
 		} catch (e) {
-			core.info(`Authentication failed: ${e.message}`);
+			core.info(`Authentication failed: ${JSON.stringify(e)}`);
 		}
 	}
 
@@ -55,7 +56,7 @@ export class PortainerService {
 				`Successfully created stack ${data.name} with id ${data.id}`
 			);
 		} catch (e) {
-			core.info(`Stack creation failed: ${e.message}`);
+			core.info(`Stack creation failed: ${JSON.stringify(e)}`);
 		}
 	}
 
@@ -81,7 +82,7 @@ export class PortainerService {
 				});
 				core.info(`Successfully deleted stack ${name}`);
 			} catch (e) {
-				core.info(`Stack deletion failed: ${e.message}`);
+				core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
 			}
 		}
 	}

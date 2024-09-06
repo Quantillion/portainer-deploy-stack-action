@@ -54,14 +54,15 @@ class PortainerService {
         return __awaiter(this, void 0, void 0, function* () {
             core.info('Authenticating with Portainer...');
             try {
-                yield this.client.post('/auth', {
+                const { data } = yield this.client.post('/auth', {
                     username,
                     password,
                 });
+                this.token = data.jwt;
                 core.info('Authentication succeeded');
             }
             catch (e) {
-                core.info(`Authentication failed: ${e.message}`);
+                core.info(`Authentication failed: ${JSON.stringify(e)}`);
             }
         });
     }
@@ -82,7 +83,7 @@ class PortainerService {
                 core.info(`Successfully created stack ${data.name} with id ${data.id}`);
             }
             catch (e) {
-                core.info(`Stack creation failed: ${e.message}`);
+                core.info(`Stack creation failed: ${JSON.stringify(e)}`);
             }
         });
     }
@@ -112,7 +113,7 @@ class PortainerService {
                     core.info(`Successfully deleted stack ${name}`);
                 }
                 catch (e) {
-                    core.info(`Stack deletion failed: ${e.message}`);
+                    core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
                 }
             }
         });
