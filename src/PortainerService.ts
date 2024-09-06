@@ -1,5 +1,9 @@
 import * as core from '@actions/core';
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+	AxiosError,
+	AxiosInstance,
+	InternalAxiosRequestConfig,
+} from 'axios';
 
 type Stack = {
 	Id: number;
@@ -7,22 +11,10 @@ type Stack = {
 	Env: string | null;
 };
 export class PortainerService {
-	private token = null;
 	private client: AxiosInstance;
 
 	constructor(url: string, private endPointId: number) {
-		this.client = axios.create({ baseURL: url + '/api/' });
-
-		this.client.interceptors.request.use(
-			(
-				config: InternalAxiosRequestConfig
-			): InternalAxiosRequestConfig => {
-				if (this.token) {
-					config.headers['Authorization'] = `Bearer ${this.token}`;
-				}
-				return config;
-			}
-		);
+		this.client = axios.create({ baseURL: url + '/api' });
 	}
 
 	async authenticate(username: string, password: string) {
@@ -32,10 +24,16 @@ export class PortainerService {
 				username,
 				password,
 			});
-			this.token = data.jwt;
+			this.client.defaults.headers.common[
+				'Authorization'
+			] = `Bearer ${data.jwt}`;
 			core.info('Authentication succeeded');
 		} catch (e) {
-			core.info(`Authentication failed: ${JSON.stringify(e)}`);
+			if (e instanceof AxiosError) {
+				core.info(`Authentication failed: ${e.response?.data}`);
+			} else {
+				core.info(`Authentication failed: ${JSON.stringify(e)}`);
+			}
 			throw e;
 		}
 	}
@@ -72,7 +70,11 @@ export class PortainerService {
 					`Successfully created stack ${data.Name} with id ${data.Id}`
 				);
 			} catch (e) {
-				core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+				if (e instanceof AxiosError) {
+					core.info(`Stack creation failed: ${e.response?.data}`);
+				} else {
+					core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+				}
 				throw e;
 			}
 		} else {
@@ -89,7 +91,11 @@ export class PortainerService {
 				);
 				core.info(`Successfully updated stack ${data.Name}`);
 			} catch (e) {
-				core.info(`Stack update failed: ${JSON.stringify(e)}`);
+				if (e instanceof AxiosError) {
+					core.info(`Stack update failed: ${e.response?.data}`);
+				} else {
+					core.info(`Stack update failed: ${JSON.stringify(e)}`);
+				}
 				throw e;
 			}
 		}
@@ -105,7 +111,11 @@ export class PortainerService {
 				});
 				core.info(`Successfully deleted stack ${name}`);
 			} catch (e) {
-				core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+				if (e instanceof AxiosError) {
+					core.info(`Stack deletion failed: ${e.response?.data}`);
+				} else {
+					core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+				}
 				throw e;
 			}
 		}

@@ -31,38 +31,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PortainerService = void 0;
 const core = __importStar(require("@actions/core"));
-const axios_1 = __importDefault(require("axios"));
+const axios_1 = __importStar(require("axios"));
 class PortainerService {
     constructor(url, endPointId) {
         this.endPointId = endPointId;
-        this.token = null;
-        this.client = axios_1.default.create({ baseURL: url + '/api/' });
-        this.client.interceptors.request.use((config) => {
-            if (this.token) {
-                config.headers['Authorization'] = `Bearer ${this.token}`;
-            }
-            return config;
-        });
+        this.client = axios_1.default.create({ baseURL: url + '/api' });
     }
     authenticate(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             core.info('Authenticating with Portainer...');
             try {
                 const { data } = yield this.client.post('/auth', {
                     username,
                     password,
                 });
-                this.token = data.jwt;
+                this.client.defaults.headers.common['Authorization'] = `Bearer ${data.jwt}`;
                 core.info('Authentication succeeded');
             }
             catch (e) {
-                core.info(`Authentication failed: ${JSON.stringify(e)}`);
+                if (e instanceof axios_1.AxiosError) {
+                    core.info(`Authentication failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+                }
+                else {
+                    core.info(`Authentication failed: ${JSON.stringify(e)}`);
+                }
                 throw e;
             }
         });
@@ -83,6 +79,7 @@ class PortainerService {
     }
     crupdateStack(name, stackFileContent) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const stack = yield this.findStack(name);
             if (!stack) {
                 core.info(`Creating stack ${name}...`);
@@ -97,7 +94,12 @@ class PortainerService {
                     core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
                 }
                 catch (e) {
-                    core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+                    if (e instanceof axios_1.AxiosError) {
+                        core.info(`Stack creation failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+                    }
+                    else {
+                        core.info(`Stack creation failed: ${JSON.stringify(e)}`);
+                    }
                     throw e;
                 }
             }
@@ -112,7 +114,12 @@ class PortainerService {
                     core.info(`Successfully updated stack ${data.Name}`);
                 }
                 catch (e) {
-                    core.info(`Stack update failed: ${JSON.stringify(e)}`);
+                    if (e instanceof axios_1.AxiosError) {
+                        core.info(`Stack update failed: ${(_b = e.response) === null || _b === void 0 ? void 0 : _b.data}`);
+                    }
+                    else {
+                        core.info(`Stack update failed: ${JSON.stringify(e)}`);
+                    }
                     throw e;
                 }
             }
@@ -120,6 +127,7 @@ class PortainerService {
     }
     deleteStack(name) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const stack = yield this.findStack(name);
             if (stack) {
                 core.info(`Deleting stack ${name}...`);
@@ -130,7 +138,12 @@ class PortainerService {
                     core.info(`Successfully deleted stack ${name}`);
                 }
                 catch (e) {
-                    core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+                    if (e instanceof axios_1.AxiosError) {
+                        core.info(`Stack deletion failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+                    }
+                    else {
+                        core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
+                    }
                     throw e;
                 }
             }
