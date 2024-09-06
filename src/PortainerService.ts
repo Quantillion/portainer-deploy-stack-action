@@ -1,9 +1,5 @@
 import * as core from '@actions/core';
-import axios, {
-	AxiosError,
-	AxiosInstance,
-	InternalAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 
 type Stack = {
 	Id: number;
@@ -29,11 +25,11 @@ export class PortainerService {
 			] = `Bearer ${data.jwt}`;
 			core.info('Authentication succeeded');
 		} catch (e) {
-			if (e instanceof AxiosError) {
-				core.info(`Authentication failed: ${e.response?.data}`);
-			} else {
-				core.info(`Authentication failed: ${JSON.stringify(e)}`);
-			}
+			core.info(
+				`Authentication failed: ${JSON.stringify(
+					e instanceof AxiosError ? e.response?.data : e
+				)}`
+			);
 			throw e;
 		}
 	}
@@ -70,11 +66,11 @@ export class PortainerService {
 					`Successfully created stack ${data.Name} with id ${data.Id}`
 				);
 			} catch (e) {
-				if (e instanceof AxiosError) {
-					core.info(`Stack creation failed: ${e.response?.data}`);
-				} else {
-					core.info(`Stack creation failed: ${JSON.stringify(e)}`);
-				}
+				core.info(
+					`Stack creation failed: ${JSON.stringify(
+						e instanceof AxiosError ? e.response?.data : e
+					)}`
+				);
 				throw e;
 			}
 		} else {
@@ -91,11 +87,11 @@ export class PortainerService {
 				);
 				core.info(`Successfully updated stack ${data.Name}`);
 			} catch (e) {
-				if (e instanceof AxiosError) {
-					core.info(`Stack update failed: ${e.response?.data}`);
-				} else {
-					core.info(`Stack update failed: ${JSON.stringify(e)}`);
-				}
+				core.info(
+					`Stack update failed: ${JSON.stringify(
+						e instanceof AxiosError ? e.response?.data : e
+					)}`
+				);
 				throw e;
 			}
 		}
@@ -111,11 +107,11 @@ export class PortainerService {
 				});
 				core.info(`Successfully deleted stack ${name}`);
 			} catch (e) {
-				if (e instanceof AxiosError) {
-					core.info(`Stack deletion failed: ${e.response?.data}`);
-				} else {
-					core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
-				}
+				core.info(
+					`Stack deletion failed: ${JSON.stringify(
+						e instanceof AxiosError ? e.response?.data : e
+					)}`
+				);
 				throw e;
 			}
 		}

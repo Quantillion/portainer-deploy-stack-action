@@ -53,12 +53,7 @@ class PortainerService {
                 core.info('Authentication succeeded');
             }
             catch (e) {
-                if (e instanceof axios_1.AxiosError) {
-                    core.info(`Authentication failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
-                }
-                else {
-                    core.info(`Authentication failed: ${JSON.stringify(e)}`);
-                }
+                core.info(`Authentication failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
                 throw e;
             }
         });
@@ -94,12 +89,7 @@ class PortainerService {
                     core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
                 }
                 catch (e) {
-                    if (e instanceof axios_1.AxiosError) {
-                        core.info(`Stack creation failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
-                    }
-                    else {
-                        core.info(`Stack creation failed: ${JSON.stringify(e)}`);
-                    }
+                    core.info(`Stack creation failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
                     throw e;
                 }
             }
@@ -114,12 +104,7 @@ class PortainerService {
                     core.info(`Successfully updated stack ${data.Name}`);
                 }
                 catch (e) {
-                    if (e instanceof axios_1.AxiosError) {
-                        core.info(`Stack update failed: ${(_b = e.response) === null || _b === void 0 ? void 0 : _b.data}`);
-                    }
-                    else {
-                        core.info(`Stack update failed: ${JSON.stringify(e)}`);
-                    }
+                    core.info(`Stack update failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_b = e.response) === null || _b === void 0 ? void 0 : _b.data : e)}`);
                     throw e;
                 }
             }
@@ -138,12 +123,7 @@ class PortainerService {
                     core.info(`Successfully deleted stack ${name}`);
                 }
                 catch (e) {
-                    if (e instanceof axios_1.AxiosError) {
-                        core.info(`Stack deletion failed: ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
-                    }
-                    else {
-                        core.info(`Stack deletion failed: ${JSON.stringify(e)}`);
-                    }
+                    core.info(`Stack deletion failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
                     throw e;
                 }
             }
