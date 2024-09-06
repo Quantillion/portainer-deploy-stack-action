@@ -1,0 +1,28 @@
+name: Portainer Stack Deployment
+description: Github Action that deploys or removes Docker Stacks using the Portainer API.
+inputs:
+    url:
+        description: Portainer URL.
+        required: true
+    username:
+        description: Portainer username.
+        required: true
+    password:
+        description: Portainer password.
+        required: true
+    endpoint_id:
+        description: Portainer endpoint ID.
+        required: true
+    stack_name:
+        description: Name of the stack to be deployed or removed.
+        required: true
+    stack_definition:
+        description: Location of the stack file (e.g. docker-compose.yml).
+        required: false
+    delete:
+        description: Set "true" to delete the stack
+        required: false
+
+runs:
+    using: node20
+    main: dist/index.js
