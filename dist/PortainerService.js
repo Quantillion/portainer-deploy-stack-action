@@ -80,9 +80,10 @@ class PortainerService {
                 const { data } = yield this.client.post('/stacks', {
                     name,
                     stackFileContent,
-                    env: JSON.stringify(Object.entries(envVars).map(([name, value]) => [
-                        { name, value },
-                    ])),
+                    env: Object.entries(envVars).map(([name, value]) => ({
+                        name,
+                        value,
+                    })),
                 }, {
                     params: {
                         endpointId: this.endpointId,
@@ -104,12 +105,13 @@ class PortainerService {
             core.info(`Updating stack ${stack.Name}...`);
             try {
                 const { data } = yield this.client.put(`/stacks/${stack.Id}`, {
-                    env: JSON.stringify([
+                    env: [
                         ...stack.Env,
-                        ...Object.entries(envVars).map(([name, value]) => [
-                            { name, value },
-                        ]),
-                    ]),
+                        ...Object.entries(envVars).map(([name, value]) => ({
+                            name,
+                            value,
+                        })),
+                    ],
                     stackFileContent,
                 }, {
                     params: {
