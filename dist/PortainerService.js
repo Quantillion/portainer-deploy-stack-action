@@ -72,41 +72,55 @@ class PortainerService {
             return stacks.find((s) => s.Name === name);
         });
     }
-    crupdateStack(name, stackFileContent) {
+    createStack(name, stackFileContent, envVars) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
-            const stack = yield this.findStack(name);
-            if (!stack) {
-                core.info(`Creating stack ${name}...`);
-                try {
-                    const { data } = yield this.client.post('/stacks', { name, stackFileContent }, {
-                        params: {
-                            endpointId: this.endpointId,
-                            method: 'string',
-                            type: 2,
-                        },
-                    });
-                    core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
-                }
-                catch (e) {
-                    core.info(`Stack creation failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
-                    throw e;
-                }
+            var _a;
+            core.info(`Creating stack ${name}...`);
+            try {
+                const { data } = yield this.client.post('/stacks', {
+                    name,
+                    stackFileContent,
+                    env: Object.entries(envVars).map(([name, value]) => [
+                        { name, value, needsDeletion: false },
+                    ]),
+                }, {
+                    params: {
+                        endpointId: this.endpointId,
+                        method: 'string',
+                        type: 2,
+                    },
+                });
+                core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
             }
-            else {
-                core.info(`Updating stack ${stack.Name}...`);
-                try {
-                    const { data } = yield this.client.put(`/stacks/${stack.Id}`, { env: stack.Env, stackFileContent }, {
-                        params: {
-                            endpointId: this.endpointId,
-                        },
-                    });
-                    core.info(`Successfully updated stack ${data.Name}`);
-                }
-                catch (e) {
-                    core.info(`Stack update failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_b = e.response) === null || _b === void 0 ? void 0 : _b.data : e)}`);
-                    throw e;
-                }
+            catch (e) {
+                core.info(`Stack creation failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
+                throw e;
+            }
+        });
+    }
+    updateStack(stack, stackFileContent, envVars) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            core.info(`Updating stack ${stack.Name}...`);
+            try {
+                const { data } = yield this.client.put(`/stacks/${stack.Id}`, {
+                    env: [
+                        ...stack.Env,
+                        Object.entries(envVars).map(([name, value]) => [
+                            { name, value, needsDeletion: false },
+                        ]),
+                    ],
+                    stackFileContent,
+                }, {
+                    params: {
+                        endpointId: this.endpointId,
+                    },
+                });
+                core.info(`Successfully updated stack ${data.Name}`);
+            }
+            catch (e) {
+                core.info(`Stack update failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
+                throw e;
             }
         });
     }

@@ -4,7 +4,11 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 type Stack = {
 	Id: number;
 	Name: string;
-	Env: string | null;
+	Env: {
+		name: string;
+		value: string | number | boolean;
+		needsDeletion: boolean;
+	}[];
 };
 export class PortainerService {
 	private client: AxiosInstance;
@@ -46,54 +50,75 @@ export class PortainerService {
 		return stacks.find((s) => s.Name === name);
 	}
 
-	async crupdateStack(name: string, stackFileContent: string) {
-		const stack = await this.findStack(name);
-		if (!stack) {
-			core.info(`Creating stack ${name}...`);
-			try {
-				const { data } = await this.client.post(
-					'/stacks',
-					{ name, stackFileContent },
-					{
-						params: {
-							endpointId: this.endpointId,
-							method: 'string',
-							type: 2,
-						},
-					}
-				);
-				core.info(
-					`Successfully created stack ${data.Name} with id ${data.Id}`
-				);
-			} catch (e) {
-				core.info(
-					`Stack creation failed: ${JSON.stringify(
-						e instanceof AxiosError ? e.response?.data : e
-					)}`
-				);
-				throw e;
-			}
-		} else {
-			core.info(`Updating stack ${stack.Name}...`);
-			try {
-				const { data } = await this.client.put(
-					`/stacks/${stack.Id}`,
-					{ env: stack.Env, stackFileContent },
-					{
-						params: {
-							endpointId: this.endpointId,
-						},
-					}
-				);
-				core.info(`Successfully updated stack ${data.Name}`);
-			} catch (e) {
-				core.info(
-					`Stack update failed: ${JSON.stringify(
-						e instanceof AxiosError ? e.response?.data : e
-					)}`
-				);
-				throw e;
-			}
+	async createStack(
+		name: string,
+		stackFileContent: string,
+		envVars: Record<string, string>
+	) {
+		core.info(`Creating stack ${name}...`);
+		try {
+			const { data } = await this.client.post(
+				'/stacks',
+				{
+					name,
+					stackFileContent,
+					env: Object.entries(envVars).map(([name, value]) => [
+						{ name, value, needsDeletion: false },
+					]),
+				},
+				{
+					params: {
+						endpointId: this.endpointId,
+						method: 'string',
+						type: 2,
+					},
+				}
+			);
+			core.info(
+				`Successfully created stack ${data.Name} with id ${data.Id}`
+			);
+		} catch (e) {
+			core.info(
+				`Stack creation failed: ${JSON.stringify(
+					e instanceof AxiosError ? e.response?.data : e
+				)}`
+			);
+			throw e;
+		}
+	}
+
+	async updateStack(
+		stack: Stack,
+		stackFileContent: string,
+		envVars: Record<string, string>
+	) {
+		core.info(`Updating stack ${stack.Name}...`);
+		try {
+			const { data } = await this.client.put(
+				`/stacks/${stack.Id}`,
+				{
+					env: [
+						...stack.Env,
+						Object.entries(envVars).map(([name, value]) => [
+							{ name, value, needsDeletion: false },
+						]),
+					],
+					stackFileContent,
+				},
+				{
+					params: {
+						endpointId: this.endpointId,
+					},
+				}
+			);
+			core.info(`Successfully updated stack ${data.Name}`);
+		} catch (e) {
+			core.info(
+				`Stack update failed: ${JSON.stringify(
+					e instanceof AxiosError ? e.response?.data : e
+				)}`
+			);
+			throw e;
 		}
 	}
 

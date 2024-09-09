@@ -22,6 +22,9 @@ inputs:
     images:
         description: The tags of container images to insert into the stack definition, separated by newline
         required: false
+    env:
+        description: Extra environment variables to be added to the stack, separated by newline
+        required: false
     delete:
         description: Set "true" to delete the stack
         required: false

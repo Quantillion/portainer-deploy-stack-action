@@ -50,7 +50,25 @@ import fs from 'fs';
 				}
 			}
 
-			await portainer.crupdateStack(name, stackDefinition);
+			const envVars = {} as Record<string, string>;
+			const envInput = core.getInput('env');
+			if (envInput) {
+				const envEntries = envInput.split('\n').map((i) => i.trim());
+				for (const envEntry of envEntries) {
+					const [key, value] = envEntry.split('=');
+					if (key && value) {
+						core.info(`Setting env variable ${key}=${value}`);
+						envVars[key] = value;
+					}
+				}
+			}
+
+			const stack = await portainer.findStack(name);
+			if (!stack) {
+				await portainer.createStack(name, stackDefinition, envVars);
+			} else {
+				await portainer.updateStack(stack, stackDefinition, envVars);
+			}
 		}
 	} catch (e) {
 		core.setFailed(`Action failed with error: ${e.message}`);

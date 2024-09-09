@@ -69,7 +69,25 @@ const fs_1 = __importDefault(require("fs"));
                     stackDefinition = stackDefinition.replace(new RegExp(`${imageWithoutTag}(:.*)?\n`), `${image}\n`);
                 }
             }
-            yield portainer.crupdateStack(name, stackDefinition);
+            const envVars = {};
+            const envInput = core.getInput('env');
+            if (envInput) {
+                const envEntries = envInput.split('\n').map((i) => i.trim());
+                for (const envEntry of envEntries) {
+                    const [key, value] = envEntry.split('=');
+                    if (key && value) {
+                        core.info(`Setting env variable ${key}=${value}`);
+                        envVars[key] = value;
+                    }
+                }
+            }
+            const stack = yield portainer.findStack(name);
+            if (!stack) {
+                yield portainer.createStack(name, stackDefinition, envVars);
+            }
+            else {
+                yield portainer.updateStack(stack, stackDefinition, envVars);
+            }
         }
     }
     catch (e) {
