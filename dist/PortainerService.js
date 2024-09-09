@@ -36,8 +36,8 @@ exports.PortainerService = void 0;
 const core = __importStar(require("@actions/core"));
 const axios_1 = __importStar(require("axios"));
 class PortainerService {
-    constructor(url, endPointId) {
-        this.endPointId = endPointId;
+    constructor(url, endpointId) {
+        this.endpointId = endpointId;
         this.client = axios_1.default.create({ baseURL: url + '/api' });
     }
     authenticate(username, password) {
@@ -61,7 +61,7 @@ class PortainerService {
     getStacks() {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.client.get('/stacks', {
-                params: { endpointId: this.endPointId },
+                params: { endpointId: this.endpointId },
             });
             return data;
         });
@@ -81,7 +81,7 @@ class PortainerService {
                 try {
                     const { data } = yield this.client.post('/stacks', { name, stackFileContent }, {
                         params: {
-                            endpointId: this.endPointId,
+                            endpointId: this.endpointId,
                             method: 'string',
                             type: 2,
                         },
@@ -98,7 +98,7 @@ class PortainerService {
                 try {
                     const { data } = yield this.client.put(`/stacks/${stack.Id}`, { env: stack.Env, stackFileContent }, {
                         params: {
-                            endpointId: this.endPointId,
+                            endpointId: this.endpointId,
                         },
                     });
                     core.info(`Successfully updated stack ${data.Name}`);
@@ -118,7 +118,7 @@ class PortainerService {
                 core.info(`Deleting stack ${name}...`);
                 try {
                     yield this.client.delete(`/stacks/${stack.Id}`, {
-                        params: { endPointId: this.endPointId },
+                        params: { endpointId: this.endpointId },
                     });
                     core.info(`Successfully deleted stack ${name}`);
                 }

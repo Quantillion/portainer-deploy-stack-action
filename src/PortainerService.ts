@@ -9,7 +9,7 @@ type Stack = {
 export class PortainerService {
 	private client: AxiosInstance;
 
-	constructor(url: string, private endPointId: number) {
+	constructor(url: string, private endpointId: number) {
 		this.client = axios.create({ baseURL: url + '/api' });
 	}
 
@@ -36,7 +36,7 @@ export class PortainerService {
 
 	async getStacks(): Promise<Stack[]> {
 		const { data } = await this.client.get('/stacks', {
-			params: { endpointId: this.endPointId },
+			params: { endpointId: this.endpointId },
 		});
 		return data;
 	}
@@ -56,7 +56,7 @@ export class PortainerService {
 					{ name, stackFileContent },
 					{
 						params: {
-							endpointId: this.endPointId,
+							endpointId: this.endpointId,
 							method: 'string',
 							type: 2,
 						},
@@ -81,7 +81,7 @@ export class PortainerService {
 					{ env: stack.Env, stackFileContent },
 					{
 						params: {
-							endpointId: this.endPointId,
+							endpointId: this.endpointId,
 						},
 					}
 				);
@@ -103,7 +103,7 @@ export class PortainerService {
 			core.info(`Deleting stack ${name}...`);
 			try {
 				await this.client.delete(`/stacks/${stack.Id}`, {
-					params: { endPointId: this.endPointId },
+					params: { endpointId: this.endpointId },
 				});
 				core.info(`Successfully deleted stack ${name}`);
 			} catch (e) {
