@@ -7,7 +7,6 @@ type Stack = {
 	Env: {
 		name: string;
 		value: string | number | boolean;
-		needsDeletion: boolean;
 	}[];
 };
 export class PortainerService {
@@ -62,9 +61,11 @@ export class PortainerService {
 				{
 					name,
 					stackFileContent,
-					env: Object.entries(envVars).map(([name, value]) => [
-						{ name, value, needsDeletion: false },
-					]),
+					env: JSON.stringify(
+						Object.entries(envVars).map(([name, value]) => [
+							{ name, value },
+						])
+					),
 				},
 				{
 					params: {
@@ -97,12 +98,12 @@ export class PortainerService {
 			const { data } = await this.client.put(
 				`/stacks/${stack.Id}`,
 				{
-					env: [
+					env: JSON.stringify([
 						...stack.Env,
-						Object.entries(envVars).map(([name, value]) => [
-							{ name, value, needsDeletion: false },
+						...Object.entries(envVars).map(([name, value]) => [
+							{ name, value },
 						]),
-					],
+					]),
 					stackFileContent,
 				},
 				{
