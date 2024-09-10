@@ -66,7 +66,7 @@ const fs_1 = __importDefault(require("fs"));
                 for (const image of images) {
                     const imageWithoutTag = image.substring(0, image.indexOf(':'));
                     core.info(`Inserting image ${image} into the stack definition`);
-                    stackDefinition = stackDefinition.replace(new RegExp(`${imageWithoutTag}(:.*)?\n`), `${image}\n`);
+                    stackDefinition = stackDefinition.replace(new RegExp(`(['"]?)${imageWithoutTag}:[^'"\n]*\\1\n`, 'g'), `$1${image}$1\n`);
                 }
             }
             const envVars = {};

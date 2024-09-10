@@ -44,8 +44,11 @@ import fs from 'fs';
 						`Inserting image ${image} into the stack definition`
 					);
 					stackDefinition = stackDefinition.replace(
-						new RegExp(`${imageWithoutTag}(:.*)?\n`),
-						`${image}\n`
+						new RegExp(
+							`(['"]?)${imageWithoutTag}:[^'"\n]*\\1\n`,
+							'g'
+						),
+						`$1${image}$1\n`
 					);
 				}
 			}

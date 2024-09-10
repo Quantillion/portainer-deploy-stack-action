@@ -104,14 +104,18 @@ class PortainerService {
             var _a;
             core.info(`Updating stack ${stack.Name}...`);
             try {
+                const env = stack.Env;
+                for (const [name, value] of Object.entries(envVars)) {
+                    const entry = env.find((e) => e.name === name);
+                    if (entry) {
+                        entry.value = value;
+                    }
+                    else {
+                        env.push({ name, value });
+                    }
+                }
                 const { data } = yield this.client.put(`/stacks/${stack.Id}`, {
-                    env: [
-                        ...stack.Env,
-                        ...Object.entries(envVars).map(([name, value]) => ({
-                            name,
-                            value,
-                        })),
-                    ],
+                    env,
                     stackFileContent,
                 }, {
                     params: {
