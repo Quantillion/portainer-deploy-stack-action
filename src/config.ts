@@ -69,7 +69,7 @@ function getStackDefinition() {
 				core.info(`Substituting template variable ${key}=${value}`);
 				stackDefinition = stackDefinition.replaceAll(
 					`{{${key}}}`,
-					`{{${value}}}`
+					`${value}`
 				);
 			}
 		}

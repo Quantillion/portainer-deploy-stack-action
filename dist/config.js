@@ -84,7 +84,7 @@ function getStackDefinition() {
             const [key, value] = templateVar.split('=');
             if (key && value) {
                 core.info(`Substituting template variable ${key}=${value}`);
-                stackDefinition = stackDefinition.replaceAll(`{{${key}}}`, `{{${value}}}`);
+                stackDefinition = stackDefinition.replaceAll(`{{${key}}}`, `${value}`);
             }
         }
     }
