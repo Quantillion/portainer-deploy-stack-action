@@ -25,6 +25,9 @@ inputs:
     env:
         description: Extra environment variables to be added to the stack, separated by newline
         required: false
+    template_variables:
+        description: Variables to be replaced in docker-compose file, separated by newline
+        required: false
     delete:
         description: Set "true" to delete the stack
         required: false
