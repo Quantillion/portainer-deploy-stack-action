@@ -19,14 +19,11 @@ inputs:
     stack_definition:
         description: Location of the stack file (e.g. docker-compose.yml).
         required: false
-    images:
-        description: The tags of container images to insert into the stack definition, separated by newline
+    template_variables:
+        description: Variables to be replaced in the stack definition file, separated by newline
         required: false
     env:
         description: Extra environment variables to be added to the stack, separated by newline
-        required: false
-    template_variables:
-        description: Variables to be replaced in docker-compose file, separated by newline
         required: false
     delete:
         description: Set "true" to delete the stack

@@ -66,15 +66,6 @@ function getStackDefinition() {
         throw new Error('Missing stack definition');
     }
     let stackDefinition = fs_1.default.readFileSync(filePath, 'utf-8');
-    const imagesInput = core.getInput('images');
-    if (imagesInput) {
-        const images = imagesInput.split('\n').map((i) => i.trim());
-        for (const image of images) {
-            const imageWithoutTag = image.substring(0, image.indexOf(':'));
-            core.info(`Inserting image ${image} into the stack definition`);
-            stackDefinition = stackDefinition.replace(new RegExp(`(['"]?)${imageWithoutTag}:[^'"\n]*\\1\n`, 'g'), `$1${image}$1\n`);
-        }
-    }
     const templateVarsInput = core.getInput('template_variables', {
         required: false,
     });
