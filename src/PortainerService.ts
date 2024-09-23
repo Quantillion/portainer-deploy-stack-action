@@ -108,6 +108,7 @@ export class PortainerService {
 				{
 					env,
 					stackFileContent,
+					pullImage: true
 				},
 				{
 					params: {
