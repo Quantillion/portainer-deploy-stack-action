@@ -77,7 +77,7 @@ class PortainerService {
             var _a;
             core.info(`Creating stack ${name}...`);
             try {
-                const { data } = yield this.client.post('/stacks', {
+                const { data } = yield this.client.post('/stacks/create/standalone/string', {
                     name,
                     stackFileContent,
                     env: Object.entries(envVars).map(([name, value]) => ({
@@ -87,8 +87,6 @@ class PortainerService {
                 }, {
                     params: {
                         endpointId: this.endpointId,
-                        method: 'string',
-                        type: 2,
                     },
                 });
                 core.info(`Successfully created stack ${data.Name} with id ${data.Id}`);
@@ -117,8 +115,10 @@ class PortainerService {
                 const { data } = yield this.client.put(`/stacks/${stack.Id}`, {
                     env,
                     stackFileContent,
+                    pullImage: true,
                 }, {
                     params: {
+                        id: stack.Id,
                         endpointId: this.endpointId,
                     },
                 });
@@ -132,7 +132,7 @@ class PortainerService {
     }
     deleteStack(name) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c, _d, _e;
             const stack = yield this.findStack(name);
             if (stack) {
                 core.info(`Deleting stack ${name}...`);
@@ -141,9 +141,19 @@ class PortainerService {
                         params: { endpointId: this.endpointId },
                     });
                     core.info(`Successfully deleted stack ${name}`);
+                    const imagePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/images/prune`, {
+                        params: {
+                            filters: JSON.stringify({
+                                dangling: ['false'],
+                            }),
+                        },
+                    });
+                    core.info(`Removed ${(_b = (_a = imagePruneRes === null || imagePruneRes === void 0 ? void 0 : imagePruneRes.data.ImagesDeleted) === null || _a === void 0 ? void 0 : _a.filter((x) => x.Deleted).length) !== null && _b !== void 0 ? _b : 0} unused images`);
+                    const volumePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/volumes/prune`);
+                    core.info(`Removed ${(_d = (_c = volumePruneRes === null || volumePruneRes === void 0 ? void 0 : volumePruneRes.data.VolumesDeleted) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0} unused volumes`);
                 }
                 catch (e) {
-                    core.info(`Stack deletion failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
+                    core.info(`Stack deletion failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_e = e.response) === null || _e === void 0 ? void 0 : _e.data : e)}`);
                     throw e;
                 }
             }
