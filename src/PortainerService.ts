@@ -57,7 +57,7 @@ export class PortainerService {
 		core.info(`Creating stack ${name}...`);
 		try {
 			const { data } = await this.client.post(
-				'/stacks',
+				'/stacks/create/standalone/string',
 				{
 					name,
 					stackFileContent,
@@ -69,8 +69,6 @@ export class PortainerService {
 				{
 					params: {
 						endpointId: this.endpointId,
-						method: 'string',
-						type: 2,
 					},
 				}
 			);
@@ -108,10 +106,11 @@ export class PortainerService {
 				{
 					env,
 					stackFileContent,
-					pullImage: true
+					pullImage: true,
 				},
 				{
 					params: {
+						id: stack.Id,
 						endpointId: this.endpointId,
 					},
 				}
@@ -136,6 +135,33 @@ export class PortainerService {
 					params: { endpointId: this.endpointId },
 				});
 				core.info(`Successfully deleted stack ${name}`);
+
+				const imagePruneRes = await this.client.post(
+					`/endpoints/${this.endpointId}/docker/images/prune`,
+					{
+						params: {
+							filters: JSON.stringify({
+								dangling: ['false'],
+							}),
+						},
+					}
+				);
+				core.info(
+					`Removed ${
+						imagePruneRes?.data.ImagesDeleted?.filter(
+							(x: any) => x.Deleted
+						).length ?? 0
+					} unused images`
+				);
+
+				const volumePruneRes = await this.client.post(
+					`/endpoints/${this.endpointId}/docker/volumes/prune`
+				);
+				core.info(
+					`Removed ${
+						volumePruneRes?.data.VolumesDeleted?.length ?? 0
+					} unused volumes`
+				);
 			} catch (e) {
 				core.info(
 					`Stack deletion failed: ${JSON.stringify(
