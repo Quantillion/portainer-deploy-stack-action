@@ -141,13 +141,7 @@ class PortainerService {
                         params: { endpointId: this.endpointId },
                     });
                     core.info(`Successfully deleted stack ${name}`);
-                    const imagePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`, {
-                        params: {
-                            filters: JSON.stringify({
-                                dangling: ['false'],
-                            }),
-                        },
-                    });
+                    const imagePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`);
                     core.info(`Removed ${(_b = (_a = imagePruneRes === null || imagePruneRes === void 0 ? void 0 : imagePruneRes.data.ImagesDeleted) === null || _a === void 0 ? void 0 : _a.filter((x) => x.Deleted).length) !== null && _b !== void 0 ? _b : 0} unused images`);
                     const volumePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/volumes/prune`);
                     core.info(`Removed ${(_d = (_c = volumePruneRes === null || volumePruneRes === void 0 ? void 0 : volumePruneRes.data.VolumesDeleted) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0} unused volumes`);
