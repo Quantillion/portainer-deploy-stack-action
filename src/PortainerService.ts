@@ -137,7 +137,14 @@ export class PortainerService {
 				core.info(`Successfully deleted stack ${name}`);
 
 				const imagePruneRes = await this.client.post(
-					`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`
+					`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`,
+					{
+						params: {
+							filters: JSON.stringify({
+								dangling: ['false'],
+							}),
+						},
+					}
 				);
 				core.info(
 					`Removed ${

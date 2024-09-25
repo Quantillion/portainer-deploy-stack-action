@@ -1,1 +1,1 @@
-npx tsc
+npx tsc && git add dist
