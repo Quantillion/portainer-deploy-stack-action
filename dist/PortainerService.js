@@ -74,7 +74,7 @@ class PortainerService {
     }
     createStack(name, stackFileContent, envVars) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             core.info(`Creating stack ${name}...`);
             try {
                 const { data } = yield this.client.post('/stacks/create/standalone/string', {
@@ -94,6 +94,15 @@ class PortainerService {
             catch (e) {
                 core.info(`Stack creation failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
                 throw e;
+            }
+            try {
+                yield this.client.post(`/endpoints/${this.endpointId}/docker/networks/${name}_network/connect`, {
+                    container: 'traefik',
+                });
+                core.info(`Traefik container connected to ${name}_network`);
+            }
+            catch (e) {
+                core.info(`Failed to connect traefik container to ${name}_network: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_b = e.response) === null || _b === void 0 ? void 0 : _b.data : e)}`);
             }
         });
     }

@@ -83,6 +83,21 @@ export class PortainerService {
 			);
 			throw e;
 		}
+		try {
+			await this.client.post(
+				`/endpoints/${this.endpointId}/docker/networks/${name}_network/connect`,
+				{
+					container: 'traefik',
+				}
+			);
+			core.info(`Traefik container connected to ${name}_network`);
+		} catch (e) {
+			core.info(
+				`Failed to connect traefik container to ${name}_network: ${JSON.stringify(
+					e instanceof AxiosError ? e.response?.data : e
+				)}`
+			);
+		}
 	}
 
 	async updateStack(
