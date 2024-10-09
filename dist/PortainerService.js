@@ -141,9 +141,19 @@ class PortainerService {
     }
     deleteStack(name) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e;
+            var _a, _b, _c, _d, _e, _f;
             const stack = yield this.findStack(name);
             if (stack) {
+                try {
+                    yield this.client.post(`/endpoints/${this.endpointId}/docker/networks/${name}_network/disconnect`, {
+                        container: 'traefik',
+                        force: true,
+                    });
+                    core.info(`Traefik container disconnected from ${name}_network`);
+                }
+                catch (e) {
+                    core.info(`Failed to disconnect traefik container from ${name}_network: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
+                }
                 core.info(`Deleting stack ${name}...`);
                 try {
                     yield this.client.delete(`/stacks/${stack.Id}`, {
@@ -151,12 +161,12 @@ class PortainerService {
                     });
                     core.info(`Successfully deleted stack ${name}`);
                     const imagePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`);
-                    core.info(`Removed ${(_b = (_a = imagePruneRes === null || imagePruneRes === void 0 ? void 0 : imagePruneRes.data.ImagesDeleted) === null || _a === void 0 ? void 0 : _a.filter((x) => x.Deleted).length) !== null && _b !== void 0 ? _b : 0} unused images`);
+                    core.info(`Removed ${(_c = (_b = imagePruneRes === null || imagePruneRes === void 0 ? void 0 : imagePruneRes.data.ImagesDeleted) === null || _b === void 0 ? void 0 : _b.filter((x) => x.Deleted).length) !== null && _c !== void 0 ? _c : 0} unused images`);
                     const volumePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/volumes/prune`);
-                    core.info(`Removed ${(_d = (_c = volumePruneRes === null || volumePruneRes === void 0 ? void 0 : volumePruneRes.data.VolumesDeleted) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0} unused volumes`);
+                    core.info(`Removed ${(_e = (_d = volumePruneRes === null || volumePruneRes === void 0 ? void 0 : volumePruneRes.data.VolumesDeleted) === null || _d === void 0 ? void 0 : _d.length) !== null && _e !== void 0 ? _e : 0} unused volumes`);
                 }
                 catch (e) {
-                    core.info(`Stack deletion failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_e = e.response) === null || _e === void 0 ? void 0 : _e.data : e)}`);
+                    core.info(`Stack deletion failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_f = e.response) === null || _f === void 0 ? void 0 : _f.data : e)}`);
                     throw e;
                 }
             }
