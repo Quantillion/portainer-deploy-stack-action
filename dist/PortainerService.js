@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -108,7 +118,7 @@ class PortainerService {
     }
     updateStack(stack, stackFileContent, envVars) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c;
             core.info(`Updating stack ${stack.Name}...`);
             try {
                 const env = stack.Env;
@@ -132,9 +142,11 @@ class PortainerService {
                     },
                 });
                 core.info(`Successfully updated stack ${data.Name}`);
+                const imagePruneRes = yield this.client.post(`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`);
+                core.info(`Removed ${(_b = (_a = imagePruneRes === null || imagePruneRes === void 0 ? void 0 : imagePruneRes.data.ImagesDeleted) === null || _a === void 0 ? void 0 : _a.filter((x) => x.Deleted).length) !== null && _b !== void 0 ? _b : 0} unused images`);
             }
             catch (e) {
-                core.info(`Stack update failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_a = e.response) === null || _a === void 0 ? void 0 : _a.data : e)}`);
+                core.info(`Stack update failed: ${JSON.stringify(e instanceof axios_1.AxiosError ? (_c = e.response) === null || _c === void 0 ? void 0 : _c.data : e)}`);
                 throw e;
             }
         });
