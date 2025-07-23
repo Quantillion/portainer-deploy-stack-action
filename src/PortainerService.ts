@@ -132,6 +132,7 @@ export class PortainerService {
 			);
 			core.info(`Successfully updated stack ${data.Name}`);
 
+			
 			const imagePruneRes = await this.client.post(
 					`/endpoints/${this.endpointId}/docker/images/prune?filters={"dangling":["false"]}`
 			);
